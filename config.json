@@ -1,0 +1,149 @@
+{
+    "tqdm_notebook": false,
+    "eval_dir": "_evaluations/",
+    "eval_dir_local": "../Evaluations/_evaluations/",
+    "eval_params": {
+        "dataset_params": {
+            "Bank Customers 1": {
+                "load": {
+                    "N_subset": 0.01
+                },
+                "encode": {
+                    "norm": true
+                }
+            },
+            "Caravan Insurance Challenge": {
+                "load": {
+                    "N_subset": 1.0
+                },
+                "encode": {
+                    "norm": false,
+                    "dr": {
+                        "method": "PCA",
+                        "n_components": 5
+                    }
+                }
+            },
+            "Credit Card 1": {
+                "load": {
+                    "N_subset": 1.0
+                },
+                "encode": {
+                    "norm": true
+                }
+            },
+            "Mall Customers": {
+                "load": {
+                    "N_subset": 1.0
+                },
+                "encode": {
+                    "norm": true
+                }
+            },
+            "Youtube Videos-Users 1": {
+                "load": {
+                    "N_subset": 0.01
+                },
+                "encode": {
+                    "norm": false
+                }
+            },
+            "Youtube Trending-Videos 1": {
+                "load": {
+                    "N_subset": 0.002
+                },
+                "encode": {
+                    "norm": false
+                }
+            }
+        },
+        "algorithm_grid_params": {
+            "demographic": {
+                "Density-Based": {
+                    "DBSCAN": {
+                        "eps": [0.1, 0.25, 0.5, 0.75, 1.0],
+                        "min_samples": [1, 5, 10, 20, 100]
+                    },
+                    "OPTICS": {
+                        "min_samples": [1, 5, 10, 20, 100],
+                        "metric": ["minkowski", "euclidean", "manhattan", "chebyshev"]
+                    },
+                    "MeanShift": {
+                        "max_iter": [300]
+                    },
+                    "AffinityPropagation": {
+                        "damping": [0.1, 0.5, 1.0],
+                        "max_iter": [200],
+                        "random_state": [0, 1, 2]
+                    }
+                },
+                "Centroid-Based": {
+                    "KMeans++": {
+                        "random_state": [0]
+                    },
+                    "MiniBatchKMeans++": {
+                        "batch_size": [128, 512, 1024],
+                        "random_state": [0]
+                    },
+                    "KPrototypes": {
+                        "random_state": [0]
+                    }
+                },
+                "Hierarchy-Based": {
+                    "Agglomerative Clustering": {
+                        "affinity": ["euclidean"]
+                    },
+                    "Birch": {
+                        "threshold": [0.1, 0.25, 0.5, 1.0],
+                        "branching_factor": [2, 10, 50, 100]
+                    }
+                },
+                "Graph-Based": {
+                    "Spectral": {
+                        "random_state": [0]
+                    }
+                },
+                "Fuzzy-Based": {
+                    "Fuzzy CMeans": {
+                        "random_state": [0]
+                    },
+                    "GMM": {
+                        "covariance_type": ["full", "tied", "diag", "spherical"]
+                    }
+                },
+                "Combined": {
+                    "SOM": {
+                        "som_dim": [[5, 5], [10, 10], [100, 100]],
+                        "som_sigma": [0.1, 0.5, 1.0],
+                        "som_learning_rate": [0.1, 0.5, 1.0],
+                        "som_iterations": [100]
+                    }
+                }
+            },
+            "demographic-behavior": {
+                "Cluster-Classifier": {
+                    "NMF + Decision Tree": {
+                        "random_state": [0],
+                        "top_n_samples_per_pattern": [1, 2, 5, 20, 50]
+                    }
+                }
+            }
+        }
+    },
+    "eval_vis_params": {
+        "figsize": [15, 15],
+        "eval_metrics": [
+            "Silhouette Score", "Calinski Harabasz Score", "Davies Bouldin Score", 
+            "Rand Score", "Adjusted Rand Score", "V Measure Score", "Fowlkes Mallows Score"
+        ],
+        "eval_metrics_inverse": ["Time", "Davies Bouldin Score"],
+        "algorithms": [
+            "DBSCAN", "OPTICS", "MeanShift", "AffinityPropagation",
+            "KMeans++", "MiniBatchKMeans++", "KPrototypes", 
+            "Agglomerative Clustering", "Birch",
+            "Spectral",
+            "Fuzzy CMeans", "GMM",
+            "SOM"
+        ]
+    }
+}

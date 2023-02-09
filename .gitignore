@@ -1,0 +1,19 @@
+__pycache__/
+
+StartFiles/
+
+# Datasets
+Data/Datasets/BankCustomers_1/Data/
+Data/Datasets/YoutubeTrendingVideos_1/Data/
+
+# Models
+_models/
+
+# Evaluations
+_evaluations/
+
+# API Keys
+_credentials/
+
+# Deployment
+_deploy/

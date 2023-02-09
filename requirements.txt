@@ -1,0 +1,23 @@
+# General
+streamlit
+requests
+
+# Utils
+tqdm
+kaggle
+
+# Data and Visualisations
+opencv_python_headless
+numpy
+matplotlib
+plotly
+pandas
+Pillow
+
+# Algorithms
+keras
+scikit_learn
+scipy
+kmodes
+fuzzy-c-means
+MiniSom
