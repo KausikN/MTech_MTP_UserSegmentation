@@ -17,11 +17,13 @@ from UserSegmentation import *
 from Utils.EvalUtils import *
 
 # Main Vars
-TEMP_PATH = "Data/Temp/"
-MODELS_DIR = "_models/"
-SETTINGS = {
-    "plots_interactive": True
+PATHS = {
+    "temp": "Data/Temp/",
+    "models": "_models/",
+    "credentials_kaggle": "_credentials/kaggle.json",
+    "settings": "_appdata/settings.json"
 }
+SETTINGS = {}
 
 # Progress Classes
 class ProgressBar:
@@ -296,7 +298,7 @@ def Model_SaveModelData(USERINPUT_SegModel, DATA):
     data_name = name_to_path(DATA["name"])
     module_name = name_to_path(DATA["model_params"]["module_name"])
     method_name = name_to_path(DATA["model_params"]["method_name"])
-    dir_path = os.path.join(MODELS_DIR, datatype_name, data_name, module_name, method_name)
+    dir_path = os.path.join(PATHS["models"], datatype_name, data_name, module_name, method_name)
     # Create Dirs
     if not os.path.exists(dir_path): os.makedirs(dir_path)
     # Save Model Data
@@ -380,7 +382,7 @@ def user_segmentation_test_basic(DATA_TYPE="demographic"):
     )
     module_name = name_to_path(USERINPUT_SegModule)
     method_name = name_to_path(USERINPUT_SegMethodName)
-    dir_path = os.path.join(MODELS_DIR, datatype_name, data_name, module_name, method_name)
+    dir_path = os.path.join(PATHS["models"], datatype_name, data_name, module_name, method_name)
     USERINPUT_SegModel, LOAD_PARAMS, SESSION_DATA = Model_LoadModelData(dir_path)
     if USERINPUT_SegModel is None:
         st.error("No Model Found")
@@ -436,9 +438,33 @@ def app_main():
     )
     APP_MODES[USERINPUT_App][USERINPUT_Mode]()
 
+def app_settings():
+    global SETTINGS
+    # Title
+    st.markdown("# Settings")
+    # Load Settings
+    if SETTINGS["kaggle"]["username"] == "" or SETTINGS["kaggle"]["key"] == "":
+        if os.path.exists(PATHS["credentials_kaggle"]): SETTINGS["kaggle"] = json.load(open(PATHS["credentials_kaggle"], "r"))
+    # Settings
+    SETTINGS["plots_interactive"] = st.checkbox("Interactive Plots", False)
+    SETTINGS["kaggle"] = json.loads(st.text_area("Kaggle", json.dumps(SETTINGS["kaggle"], indent=4), height=250))
+    # Save Settings
+    if st.button("Save Settings"):
+        json.dump(SETTINGS, open(PATHS["settings"], "w"), indent=4)
+        # Settings Operations
+        os.makedirs(os.path.dirname(PATHS["credentials_kaggle"]), exist_ok=True)
+        if not (SETTINGS["kaggle"]["username"] == "" or SETTINGS["kaggle"]["key"] == ""):
+            json.dump(SETTINGS["kaggle"], open(PATHS["credentials_kaggle"], "w"))
+        st.success("Settings Saved")
+
 # RunCode
 if __name__ == "__main__":
     # Assign Objects
-    SETTINGS["plots_interactive"] = st.sidebar.checkbox("Interactive Plots", False)
-    # Run Main
-    app_main()
+    SETTINGS = json.load(open(PATHS["settings"], "r"))
+    SETTINGS_ACTIVE = st.sidebar.checkbox("Show Settings", False)
+    if SETTINGS_ACTIVE:
+        # Run Settings
+        app_settings()
+    else:
+        # Run Main
+        app_main()

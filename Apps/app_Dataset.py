@@ -12,8 +12,9 @@ from tqdm import tqdm
 from UserSegmentation import *
 
 # Main Vars
-TEMP_PATH = "Data/Temp/"
-
+PATHS = {
+    "temp": "Data/Temp/"
+}
 DEFAULT_CMAP = "gray"
 
 # UI Functions

@@ -136,6 +136,7 @@ def DatasetUtils_LoadDataset(
     if keep_cols is None: keep_cols = DatasetData["cols"]["keep"]
     # Download Dataset
     if not os.path.exists(os.path.join(path, DATASET_ITEMPATHS[mode]["videos"].format(DATASET_ITEMPATHS["languages"][0]))):
+        os.makedirs(DATASET_PATH, exist_ok=True)
         KaggleUtils_DownloadDataset(DATASET_ITEMPATHS["kaggle"], DATASET_PATH, quiet=False, unzip=True)
     # Load Language-wise Datasets
     dataset_videos = {}

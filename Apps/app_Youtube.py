@@ -15,8 +15,10 @@ from UserSegmentation import *
 from Utils.YoutubeUtils import *
 
 # Main Vars
-TEMP_PATH = "Data/Temp/"
-MODELS_DIR = "_models/"
+PATHS = {
+    "temp": "Data/Temp/",
+    "models": "_models/"
+}
 SETTINGS = {
     "plots_interactive": True
 }

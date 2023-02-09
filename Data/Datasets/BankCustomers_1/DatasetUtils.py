@@ -91,6 +91,7 @@ def DatasetUtils_LoadDataset(
     csv_path = os.path.join(path, DATASET_ITEMPATHS[mode])
     # Download Dataset
     if not os.path.exists(csv_path):
+        os.makedirs(DATASET_PATH, exist_ok=True)
         KaggleUtils_DownloadDataset(DATASET_ITEMPATHS["kaggle"], DATASET_PATH, quiet=False, unzip=True)
     # Get Dataset
     dataset = DatasetUtils_LoadCSV(csv_path)

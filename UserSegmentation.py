@@ -39,7 +39,7 @@ from Data.Datasets.CaravanInsuranceChallenge import DatasetUtils as DatasetUtils
 from Data.Datasets.MallCustomers import DatasetUtils as DatasetUtils_MallCustomers
 from Data.Datasets.BankCustomers_1 import DatasetUtils as DatasetUtils_BankCustomers_1
 from Data.Datasets.YoutubeVideosUsers_1 import DatasetUtils as DatasetUtils_YoutubeVideosUsers_1
-# from Data.Datasets.YoutubeTrendingVideos_1 import DatasetUtils as DatasetUtils_YoutubeTrendingVideos_1
+from Data.Datasets.YoutubeTrendingVideos_1 import DatasetUtils as DatasetUtils_YoutubeTrendingVideos_1
 
 # Main Functions
 def SegmentationClasses_Default(N_CLASSES):
@@ -99,5 +99,5 @@ DATASETS = {
     "Credit Card 1": DatasetUtils_CreditCard_1,
     "Mall Customers": DatasetUtils_MallCustomers,
     "Youtube Videos-Users 1": DatasetUtils_YoutubeVideosUsers_1,
-    # "Youtube Trending-Videos 1": DatasetUtils_YoutubeTrendingVideos_1
+    "Youtube Trending-Videos 1": DatasetUtils_YoutubeTrendingVideos_1
 }

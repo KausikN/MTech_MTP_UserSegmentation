@@ -51,6 +51,7 @@ def KaggleUtils_DownloadDataset(dataset_id, path, quiet=False, unzip=True):
         zip_path = os.path.join(path, dataset_id.split("/")[1] + ".zip")
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(path)
+        os.remove(zip_path)
 
 # Main Vars
 KAGGLE_API = None
