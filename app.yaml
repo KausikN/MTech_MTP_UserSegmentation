@@ -1,3 +1,3 @@
-service: mtp-project
+service: mtp-project-usersegmentation
 runtime: custom
 env: flex

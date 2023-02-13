@@ -426,7 +426,7 @@ APP_MODES = {
 # App Functions
 def app_main():
     # Title
-    st.markdown("# MTech Project")
+    st.markdown("# MTech Project - User Segmentation")
     # Mode
     USERINPUT_App = st.sidebar.selectbox(
         "Select App",
