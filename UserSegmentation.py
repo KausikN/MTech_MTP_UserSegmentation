@@ -33,6 +33,8 @@ from SegmentationMethods.Demographic import UserSegmentation_Demographic_Cluster
 from SegmentationMethods.Demographic import UserSegmentation_Demographic_Cluster_Graph
 from SegmentationMethods.Demographic import UserSegmentation_Demographic_ClusterClassifier
 from SegmentationMethods.Combined import UserSegmentation_DemographicBehavior_ClusterClassifier
+# Interpreter Imports
+from InterpretationMethods.Demographic import UserSegmentation_Demographic_Interpret_Classifier
 # Dataset Imports
 from Data.Datasets.CreditCard_1 import DatasetUtils as DatasetUtils_CreditCard_1
 from Data.Datasets.CaravanInsuranceChallenge import DatasetUtils as DatasetUtils_CaravanInsuranceChallenge
@@ -89,6 +91,14 @@ SEGMENTATION_MODULES = {
     "demographic-behavior": {
         "Cluster-Classifier": {
             **UserSegmentation_DemographicBehavior_ClusterClassifier.SEG_FUNCS
+        }
+    }
+}
+
+INTERPRETATION_MODULES = {
+    "demographic": {
+        "Classifier": {
+            **UserSegmentation_Demographic_Interpret_Classifier.INTERPRET_FUNCS
         }
     }
 }

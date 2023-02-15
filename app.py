@@ -230,6 +230,34 @@ def UI_LoadUser(DATA):
 
     return USERINPUT_User
 
+def UI_LoadInterpreterModel(DATA_TYPE="demographic"):
+    '''
+    Load Model for Interpretation
+    '''
+    st.markdown("## Load Interpretation Algo")
+    # Load Method
+    USERINPUT_InterpModule = st.selectbox("Select Interpretation Module", list(INTERPRETATION_MODULES[DATA_TYPE].keys()))
+    cols = st.columns((1, 3))
+    USERINPUT_InterpMethodName = cols[0].selectbox(
+        "Select Interpretation Method",
+        list(INTERPRETATION_MODULES[DATA_TYPE][USERINPUT_InterpModule].keys())
+    )
+    USERINPUT_InterpMethod = INTERPRETATION_MODULES[DATA_TYPE][USERINPUT_InterpModule][USERINPUT_InterpMethodName]
+    # Load Params
+    USERINPUT_InterpParams_str = cols[1].text_area(
+        "Params", 
+        value=json.dumps(USERINPUT_InterpMethod["params"], indent=8),
+        height=200
+    )
+    USERINPUT_InterpParams = json.loads(USERINPUT_InterpParams_str)
+    USERINPUT_InterpMethod = {
+        "class": USERINPUT_InterpMethod["class"],
+        "params": USERINPUT_InterpParams
+    }
+
+    return USERINPUT_InterpMethod
+
+
 def UI_DisplayLabelDistribution(User_L, label_names=[]):
     '''
     Display Label Distribution
@@ -287,6 +315,19 @@ def UI_DisplayVisData(OutData):
     for k in OutData["data"].keys():
         st.markdown(f"### {k}")
         st.write(OutData["data"][k])
+
+def UI_InterpretModel(USERINPUT_SegModel, DATA):
+    '''
+    Interpret Model
+    '''
+    # Init
+    st.markdown("# Interpret Model")
+    # Get User
+    USERINPUT_User = UI_LoadUser(DATA)
+    # Get User Labels
+    USERINPUT_User_L = USERINPUT_SegModel.predict(USERINPUT_User["F"])
+    # Display User Labels
+    UI_DisplayLabelDistribution(USERINPUT_User_L, label_names=USERINPUT_SegModel.label_names)
 
 # Load / Save Model Functions
 def Model_SaveModelData(USERINPUT_SegModel, DATA):
@@ -383,10 +424,11 @@ def user_segmentation_test_basic(DATA_TYPE="demographic"):
     module_name = name_to_path(USERINPUT_SegModule)
     method_name = name_to_path(USERINPUT_SegMethodName)
     dir_path = os.path.join(PATHS["models"], datatype_name, data_name, module_name, method_name)
-    USERINPUT_SegModel, LOAD_PARAMS, SESSION_DATA = Model_LoadModelData(dir_path)
-    if USERINPUT_SegModel is None:
+    if not os.path.exists(dir_path):
         st.error("No Model Found")
         return
+    # Load Model
+    USERINPUT_SegModel, LOAD_PARAMS, SESSION_DATA = Model_LoadModelData(dir_path)
     DATA["module"].DATASET_SESSION_DATA = SESSION_DATA
     DATA["params"] = LOAD_PARAMS["dataset_params"]
     DATA["model_params"] = LOAD_PARAMS["model_params"]
@@ -396,6 +438,10 @@ def user_segmentation_test_basic(DATA_TYPE="demographic"):
     USERINPUT_User = UI_LoadUser(DATA)
 
     # Process Inputs
+    # Process Check
+    USERINPUT_Process = st.checkbox("Stream Process", value=False)
+    if not USERINPUT_Process: USERINPUT_Process = st.button("Process")
+    if not USERINPUT_Process: st.stop()
     # Segmentation
     PROGRESS_BARS["overall"].update("Predicting User...") # 4
     User_L = USERINPUT_SegModel.predict(USERINPUT_User["F"])[0]
@@ -411,15 +457,81 @@ def user_segmentation_test_basic(DATA_TYPE="demographic"):
     PROGRESS_BARS["overall"].update("Finished") # 7
     PROGRESS_BARS["overall"].finish()
 
+def user_segmentation_interpret_basic(DATA_TYPE="demographic"):
+    # Title
+    st.markdown(f"# Segmentation - {DATA_TYPE} - Interpret")
+
+    # Load Inputs
+    # Init
+    PROGRESS_BARS = {
+        "overall": ProgressBar("Started", 6)
+    }
+    # Load Dataset
+    PROGRESS_BARS["overall"].update("Loading Dataset...") # 1
+    DATA = UI_LoadDataset(DATA_TYPE)
+    # Load Model
+    PROGRESS_BARS["overall"].update("Loading Model...") # 2
+    datatype_name = name_to_path(DATA["data_type"])
+    data_name = name_to_path(DATA["name"])
+    cols = st.columns(2)
+    USERINPUT_SegModule = cols[0].selectbox("Select Segmentation Module", list(SEGMENTATION_MODULES[DATA["data_type"]].keys()))
+    USERINPUT_SegMethodName = cols[1].selectbox(
+        "Select Segmentation Method",
+        list(SEGMENTATION_MODULES[DATA["data_type"]][USERINPUT_SegModule].keys())
+    )
+    module_name = name_to_path(USERINPUT_SegModule)
+    method_name = name_to_path(USERINPUT_SegMethodName)
+    dir_path = os.path.join(PATHS["models"], datatype_name, data_name, module_name, method_name)
+    if not os.path.exists(dir_path):
+        st.error("No Model Found")
+        return
+    # Select Interpreter Model
+    PROGRESS_BARS["overall"].update("Loading Interpreter...") # 3
+    USERINPUT_InterpreterMethod = UI_LoadInterpreterModel(DATA_TYPE)
+
+    # Process Inputs
+    # Process Check
+    USERINPUT_Process = st.checkbox("Stream Process", value=False)
+    if not USERINPUT_Process: USERINPUT_Process = st.button("Process")
+    if not USERINPUT_Process: st.stop()
+    # Load Model
+    USERINPUT_SegModel, LOAD_PARAMS, SESSION_DATA = Model_LoadModelData(dir_path)
+    DATA["module"].DATASET_SESSION_DATA = SESSION_DATA
+    DATA["params"] = LOAD_PARAMS["dataset_params"]
+    DATA["model_params"] = LOAD_PARAMS["model_params"]
+    DATA["other_params"] = LOAD_PARAMS["other_params"]
+    # Load Interpreter
+    USERINPUT_InterpreterMethod["params"].update({
+        "clustering_algorithm": USERINPUT_SegModel,
+    })
+    USERINPUT_InterpreterModel = USERINPUT_InterpreterMethod["class"](
+        **USERINPUT_InterpreterMethod["params"]
+    )
+    USERINPUT_InterpreterModel.train()
+    # Display Interpreter Visualisations
+    PROGRESS_BARS["overall"].update("Visualising Interpreter...") # 4
+    st.markdown("## Interpreter Visualisation")
+    VisData_Interpreter = USERINPUT_InterpreterModel.visualise()
+    UI_DisplayVisData(VisData_Interpreter)
+    # Display Model Visualisations
+    PROGRESS_BARS["overall"].update("Visualising Model...") # 5
+    st.markdown("## Model Visualisation")
+    VisData = USERINPUT_SegModel.visualise()
+    UI_DisplayVisData(VisData)
+    PROGRESS_BARS["overall"].update("Finished") # 6
+    PROGRESS_BARS["overall"].finish()
+
 # Mode Vars
 APP_MODES = {
     "User Segmentation - Demographic": {
         "Train": functools.partial(user_segmentation_train_basic, DATA_TYPE="demographic"),
-        "Test": functools.partial(user_segmentation_test_basic, DATA_TYPE="demographic")
+        "Test": functools.partial(user_segmentation_test_basic, DATA_TYPE="demographic"),
+        "Interpret": functools.partial(user_segmentation_interpret_basic, DATA_TYPE="demographic")
     },
     "User Segmentation - Demographic-Behavior": {
         "Train": functools.partial(user_segmentation_train_basic, DATA_TYPE="demographic-behavior"),
-        "Test": functools.partial(user_segmentation_test_basic, DATA_TYPE="demographic-behavior")
+        "Test": functools.partial(user_segmentation_test_basic, DATA_TYPE="demographic-behavior"),
+        "Interpret": functools.partial(user_segmentation_interpret_basic, DATA_TYPE="demographic-behavior")
     }
 }
 
