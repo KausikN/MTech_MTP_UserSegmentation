@@ -1,3 +1,0 @@
-# TODO
-## Customer Vectors
- - Customer Representations for Social Networks
