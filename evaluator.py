@@ -163,14 +163,15 @@ for N_CLUSTERS in N_CLUSTERS_LIST:
     json.dump(BEST_PARAMS, open(os.path.join(SAVE_DIR, "best_params.json"), "w"), indent=4)
 
     # Save Best Model
-    BEST_MODEL_PARAMS = {
-        "best_eval_metric": PARAMS_BEST_MODEL["best_eval_metric"],
-        "best_params": EVAL_BEST_MODEL["params"],
-        "best_eval_data": EVAL_BEST_MODEL["eval_data"]
-    }
-    json.dump(BEST_MODEL_PARAMS, open(os.path.join(SAVE_DIR, "best_model_params.json"), "w"), indent=4)
-    MODEL = EVAL_BEST_MODEL["model"]
-    MODEL.save(SAVE_DIR)
+    if PARAMS_BEST_MODEL["save"] and EVAL_BEST_MODEL["model"] is not None:
+        BEST_MODEL_PARAMS = {
+            "best_eval_metric": PARAMS_BEST_MODEL["best_eval_metric"],
+            "best_params": EVAL_BEST_MODEL["params"],
+            "best_eval_data": EVAL_BEST_MODEL["eval_data"]
+        }
+        json.dump(BEST_MODEL_PARAMS, open(os.path.join(SAVE_DIR, "best_model_params.json"), "w"), indent=4)
+        MODEL = EVAL_BEST_MODEL["model"]
+        MODEL.save(SAVE_DIR)
 
 # Commands
 ## Params
