@@ -2,6 +2,10 @@
     "tqdm_notebook": false,
     "eval_dir": "_evaluations/",
     "eval_dir_local": "../Evaluations/_evaluations/",
+    "best_model_params": {
+        "save": true,
+        "best_eval_metric": "Silhouette Score"
+    },
     "eval_params": {
         "dataset_params": {
             "Bank Customers 1": {

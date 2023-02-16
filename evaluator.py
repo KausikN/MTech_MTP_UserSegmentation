@@ -43,14 +43,12 @@ def GridParams_ConstructGrid(params_list):
 
 # RunCode
 # Params
-EVAL_DIR = CONFIG["eval_dir"] # "../Evaluations/_evaluations/"
+EVAL_DIR = CONFIG["eval_dir"]
+PARAMS_BEST_MODEL = CONFIG["best_model_params"]
 DATASET_PARAMS_DICT = CONFIG["eval_params"]["dataset_params"]
 PARAMS_GRID_DICT = CONFIG["eval_params"]["algorithm_grid_params"]
 # Dataset Params
-DATASET_KEYS = [
-    "Bank Customers 1", "Caravan Insurance Challenge", "Credit Card 1", "Mall Customers", 
-    "Youtube Videos-Users 1", "Youtube Trending-Videos 1"
-]
+DATASET_KEYS = list(DATASETS.keys())
 INPUT_DATASET_KEY = "bank" if len(sys.argv) < 2 else str(sys.argv[1])
 DATASET_KEY = SelectKey_StartsWith(DATASET_KEYS, INPUT_DATASET_KEY)
 INPUT_ALGO_KEY = "dbscan" if len(sys.argv) < 3 else str(sys.argv[2])
@@ -90,6 +88,12 @@ for N_CLUSTERS in N_CLUSTERS_LIST:
 
     # Grid Search
     GRID_EVAL_DATA = []
+    EVAL_BEST_MODEL = {
+        "best_eval_metric": PARAMS_BEST_MODEL["best_eval_metric"],
+        "params": {},
+        "eval_data": {},
+        "model": None
+    }
     GRID_PARAMS = GridParams_ConstructGrid(PARAMS_GRID_LIST)
     print("N CLUSTERS:", N_CLUSTERS)
     print("ALGO:", SEGMENTATION_ALGO_KEY)
@@ -125,6 +129,14 @@ for N_CLUSTERS in N_CLUSTERS_LIST:
                 "params": deepcopy(SEGMENTATION_ALGO["params"]),
                 "eval_data": deepcopy(EVAL_DATA)
             })
+            # Record Best Model
+            if EVAL_BEST_MODEL["model"] is None or \
+            EVAL_DATA["Cluster Evaluations"][PARAMS_BEST_MODEL["best_eval_metric"]] > \
+            EVAL_BEST_MODEL["eval_data"]["Cluster Evaluations"][PARAMS_BEST_MODEL["best_eval_metric"]]:
+                EVAL_BEST_MODEL["params"] = deepcopy(SEGMENTATION_ALGO["params"])
+                EVAL_BEST_MODEL["eval_data"] = deepcopy(EVAL_DATA)
+                EVAL_BEST_MODEL["model"] = MODEL
+
         except Exception as e:
             print()
             print("PARAMS:")
@@ -149,6 +161,16 @@ for N_CLUSTERS in N_CLUSTERS_LIST:
     # Compute and Save Best Params
     BEST_PARAMS = EvalUtils_GetBestParams(OUT_DATA)
     json.dump(BEST_PARAMS, open(os.path.join(SAVE_DIR, "best_params.json"), "w"), indent=4)
+
+    # Save Best Model
+    BEST_MODEL_PARAMS = {
+        "best_eval_metric": PARAMS_BEST_MODEL["best_eval_metric"],
+        "best_params": EVAL_BEST_MODEL["params"],
+        "best_eval_data": EVAL_BEST_MODEL["eval_data"]
+    }
+    json.dump(BEST_MODEL_PARAMS, open(os.path.join(SAVE_DIR, "best_model_params.json"), "w"), indent=4)
+    MODEL = EVAL_BEST_MODEL["model"]
+    MODEL.save(SAVE_DIR)
 
 # Commands
 ## Params
