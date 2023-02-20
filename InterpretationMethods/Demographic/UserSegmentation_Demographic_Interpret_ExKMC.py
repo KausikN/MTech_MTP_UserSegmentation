@@ -1,5 +1,5 @@
 """
-User Segmentation - Demographic - Interpret - Classifier-Based Algorithms
+User Segmentation - Demographic - Interpret - ExKMC Algorithms
 
 Pipeline Steps:
  - Train Classifier on Features with assigned Cluster Labels
@@ -11,33 +11,32 @@ Pipeline Steps:
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.tree import DecisionTreeClassifier
-import shap
+from ExKMC import Tree as ExKMC_Tree
 
 from .Utils import *
 
 # Main Classes
-# Decision Tree Classifier
-class UserSegmentation_Interpret_DT(UserSegmentation_Interpret_Base):
+# ExKMC
+class UserSegmentation_Interpret_ExKMC(UserSegmentation_Interpret_Base):
     def __init__(self,
     clustering_algorithm=None,
 
-    decision_tree_criterion="gini",
+    exkmc_max_leaves=None,
     random_state=0,
 
     **params
     ):
         '''
-        User Segmentation - Interpret - Decision Tree Classifier
+        User Segmentation - Interpret - ExKMC
 
         Params:
          - clustering_algorithm : Clustering Algorithm Object used to get Cluster Labels
-         - decision_tree_criterion : Criterion for Decision Tree ["gini", "entropy"]
+         - exkmc_max_leaves : Maximum number of leaves in the tree (If None, IMM will be used, else ExKMC)
          - random_state : Random State
 
         '''
         self.clustering_algorithm = clustering_algorithm
-        self.decision_tree_criterion = decision_tree_criterion
+        self.exkmc_max_leaves = exkmc_max_leaves
         self.random_state = random_state
         self.__dict__.update(params)
         # Time Params
@@ -52,7 +51,7 @@ class UserSegmentation_Interpret_DT(UserSegmentation_Interpret_Base):
         '''
         Train
 
-        Train Decision Tree Classifier on given features and labels from clustering algorithm.
+        Train ExKMC on given features and labels from clustering algorithm.
 
         Inputs: None
             
@@ -60,7 +59,7 @@ class UserSegmentation_Interpret_DT(UserSegmentation_Interpret_Base):
             - interpretation_model : Model used to interpret clusters
         '''
         # Init
-        self.time_data["train"] = Time_Record("Decision Tree Classifier - Train")
+        self.time_data["train"] = Time_Record("ExKMC - Train")
         ## Features Info Init
         self.feature_types = self.clustering_algorithm.feature_types
         self.feature_names = self.clustering_algorithm.feature_names
@@ -72,17 +71,19 @@ class UserSegmentation_Interpret_DT(UserSegmentation_Interpret_Base):
         Fs_flat, self.features_flat_pos = Array_Flatten(Fs, self.feature_types)
         self.feature_names_flat = Array_FlatFeaturesNameMap(self.feature_names, self.feature_types, self.features_flat_pos)
         self.time_data["train"] = Time_Record("Data Preprocess", self.time_data["train"])
-        classifier_model = DecisionTreeClassifier(
-            criterion=self.decision_tree_criterion,
+        
+        interpreter_model = ExKMC_Tree.Tree(
+            k=N_CLASSES,
+            max_leaves=self.exkmc_max_leaves,
             random_state=self.random_state
-        ).fit(Fs_flat, Ls.argmax(axis=-1))
+        ).fit(Fs_flat, self.clustering_algorithm.model["model"])
         self.time_data["train"] = Time_Record("Model Training", self.time_data["train"])
         # Record
         self.model = {
-            "model": classifier_model,
+            "model": interpreter_model,
             "features_flat": Fs_flat,
             "true_labels": Ls,
-            "predicted_labels": classifier_model.predict(Fs_flat),
+            "predicted_labels": interpreter_model.predict(Fs_flat),
         }
         self.time_data["train"] = Time_Record("", self.time_data["train"], finish=True)
 
@@ -101,36 +102,31 @@ class UserSegmentation_Interpret_DT(UserSegmentation_Interpret_Base):
             "data": {}
         }
         Plots = {
-            "SHAP": []
+            "Tree": []
         }
         Data = {}
         # Get Data
-        classifier_model = self.model["model"]
+        interpreter_model = self.model["model"]
         Fs_flat = self.model["features_flat"]
         # SHAP Plot
         if disable_plots:
             fig_1 = plt.figure()
-            # fig_2 = plt.figure()
         else:
+            save_path = "_evaluations/temp"
+            interpreter_model.plot(filename=save_path, feature_names=self.feature_names_flat)
             fig_1 = plt.figure()
-            EXPLAINER = shap.TreeExplainer(classifier_model)
-            Fs_flat = Fs_flat[0:5]
-            SHAP_VALUES = EXPLAINER.shap_values(Fs_flat)
-            shap.summary_plot(SHAP_VALUES, Fs_flat, feature_names=self.feature_names_flat, show=False)
-            # fig_1 = shap.force_plot(EXPLAINER.expected_value[0], SHAP_VALUES[0], Fs_flat, feature_names=self.feature_names_flat, show=False)
-            # shap.waterfall_plot(SHAP_VALUES[0], Fs_flat, show=False)
+            fig_I = plt.imread(save_path + ".gv.png")
+            plt.imshow(fig_I)
         ## Record
-        Plots["SHAP"].append(fig_1)
-        # Plots["SHAP"].append(fig_2)
+        Plots["Tree"].append(fig_1)
         Data["Classifier Evaluations"] = {
             **ClassifierEval_Basic(self.model["true_labels"], self.model["predicted_labels"]),
         }
         Data["Time"] = self.time_data
         ## CleanUp
         plt.close(fig_1)
-        # plt.close(fig_2)
         # Record
-        VisData["figs"]["plotly_chart"]["SHAP"] = Plots["SHAP"]
+        VisData["figs"]["pyplot"]["Tree"] = Plots["Tree"]
         VisData["data"] = Data
 
         return VisData
@@ -163,11 +159,11 @@ class UserSegmentation_Interpret_DT(UserSegmentation_Interpret_Base):
 
 # Main Vars
 INTERPRET_FUNCS = {
-    "Decision Tree": {
-        "class": UserSegmentation_Interpret_DT,
+    "ExKMC": {
+        "class": UserSegmentation_Interpret_ExKMC,
         "params": {
             "clustering_algorithm": None,
-            "decision_tree_criterion": "gini",
+            "exkmc_max_leaves": None,
         }
     }
 }
