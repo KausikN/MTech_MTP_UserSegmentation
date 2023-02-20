@@ -362,7 +362,7 @@ def Model_LoadModelData(path):
     '''
     # Init
     # Check Exists
-    if not os.path.exists(path): return None, None
+    if not os.path.exists(path): return None, None, None
     # Load Session Data
     session_data = pickle.load(open(os.path.join(path, "session_data.p"), "rb"))
     # Load Dataset Data
