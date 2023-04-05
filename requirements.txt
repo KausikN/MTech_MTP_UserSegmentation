@@ -22,4 +22,4 @@ scipy
 kmodes
 fuzzy-c-means
 MiniSom
-ExKMC
+# ExKMC
