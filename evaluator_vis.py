@@ -112,7 +112,7 @@ def EvalPlot_Comparison(EVAL_DATA):
     eval_params = EVAL_DATA["params"]
     eval_data = EVAL_DATA["data"]
     eval_data.update(EVAL_DATA["other_data"])
-    N_COLS = 3
+    N_COLS = 2
     FIGS = {
         "ComparisonPlot": {},
         "RadarPlot": {},
