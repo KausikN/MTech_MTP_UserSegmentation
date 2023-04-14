@@ -34,8 +34,8 @@ from SegmentationMethods.Demographic import UserSegmentation_Demographic_Cluster
 from SegmentationMethods.Demographic import UserSegmentation_Demographic_ClusterClassifier
 from SegmentationMethods.Combined import UserSegmentation_DemographicBehavior_ClusterClassifier
 # Interpreter Imports
-# from InterpretationMethods.Demographic import UserSegmentation_Demographic_Interpret_Classifier
-# from InterpretationMethods.Demographic import UserSegmentation_Demographic_Interpret_ExKMC
+from InterpretationMethods.Demographic import UserSegmentation_Demographic_Interpret_Classifier
+from InterpretationMethods.Demographic import UserSegmentation_Demographic_Interpret_ExKMC
 # Dataset Imports
 from Data.Datasets.CreditCard_1 import DatasetUtils as DatasetUtils_CreditCard_1
 from Data.Datasets.CaravanInsuranceChallenge import DatasetUtils as DatasetUtils_CaravanInsuranceChallenge
@@ -73,21 +73,6 @@ SEGMENTATION_MODULES = {
             **UserSegmentation_Demographic_Cluster_SOM.SEG_FUNCS,
             **UserSegmentation_Demographic_ClusterClassifier.SEG_FUNCS,
         }
-        
-        # "Clustering - Known Cluster Count": {
-        #     **UserSegmentation_Demographic_Cluster_K.SEG_FUNCS,
-        #     **UserSegmentation_Demographic_Cluster_Fuzzy.SEG_FUNCS,
-        #     **UserSegmentation_Demographic_Cluster_Heirarchical.SEG_FUNCS,
-        #     **UserSegmentation_Demographic_Cluster_SOM.SEG_FUNCS,
-        #     **UserSegmentation_Demographic_Cluster_Graph.SEG_FUNCS
-
-        # },
-        # "Clustering - Unknown Cluster Count": {
-        #     **UserSegmentation_Demographic_Cluster_Density.SEG_FUNCS
-        # },
-        # "Cluster-Classifier": {
-        #     **UserSegmentation_Demographic_ClusterClassifier.SEG_FUNCS
-        # }
     },
     "demographic-behavior": {
         "Cluster-Classifier": {
@@ -98,12 +83,12 @@ SEGMENTATION_MODULES = {
 
 INTERPRETATION_MODULES = {
     "demographic": {
-        # "Classifier": {
-        #     **UserSegmentation_Demographic_Interpret_Classifier.INTERPRET_FUNCS
-        # },
-        # "ExKMC": {
-        #     **UserSegmentation_Demographic_Interpret_ExKMC.INTERPRET_FUNCS
-        # }
+        "Classifier": {
+            **UserSegmentation_Demographic_Interpret_Classifier.INTERPRET_FUNCS
+        },
+        "ExKMC": {
+            **UserSegmentation_Demographic_Interpret_ExKMC.INTERPRET_FUNCS
+        }
     }
 }
 
