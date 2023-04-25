@@ -35,7 +35,7 @@ from SegmentationMethods.Demographic import UserSegmentation_Demographic_Cluster
 from SegmentationMethods.Combined import UserSegmentation_DemographicBehavior_ClusterClassifier
 # Interpreter Imports
 from InterpretationMethods.Demographic import UserSegmentation_Demographic_Interpret_Classifier
-from InterpretationMethods.Demographic import UserSegmentation_Demographic_Interpret_ExKMC
+# from InterpretationMethods.Demographic import UserSegmentation_Demographic_Interpret_ExKMC
 # Dataset Imports
 from Data.Datasets.CreditCard_1 import DatasetUtils as DatasetUtils_CreditCard_1
 from Data.Datasets.CaravanInsuranceChallenge import DatasetUtils as DatasetUtils_CaravanInsuranceChallenge
@@ -86,9 +86,9 @@ INTERPRETATION_MODULES = {
         "Classifier": {
             **UserSegmentation_Demographic_Interpret_Classifier.INTERPRET_FUNCS
         },
-        "ExKMC": {
-            **UserSegmentation_Demographic_Interpret_ExKMC.INTERPRET_FUNCS
-        }
+        # "ExKMC": {
+        #     **UserSegmentation_Demographic_Interpret_ExKMC.INTERPRET_FUNCS
+        # }
     }
 }
 
